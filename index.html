@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Assistant — Caroline Griffiths & Bridal Gossip</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blush: #f5ede8;
+    --rose: #c9897a;
+    --deep: #3d2b2b;
+    --gold: #c4a882;
+    --cream: #faf7f4;
+    --mist: #ede8e3;
+    --text: #3d2b2b;
+    --soft: #9a8278;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* Header */
+  header {
+    background: var(--deep);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo-block h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 1.5rem;
+    color: var(--blush);
+    letter-spacing: 0.04em;
+  }
+
+  .logo-block p {
+    font-size: 0.7rem;
+    color: var(--gold);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .powered {
+    font-size: 0.65rem;
+    color: var(--soft);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* Tab Nav */
+  .tab-nav {
+    background: var(--mist);
+    display: flex;
+    border-bottom: 1px solid #ddd5cc;
+    overflow-x: auto;
+    padding: 0 40px;
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--soft);
+    padding: 16px 20px 14px;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover { color: var(--rose); }
+
+  .tab-btn.active {
+    color: var(--rose);
+    border-bottom-color: var(--rose);
+  }
+
+  /* Main layout */
+  .main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* Tool panels */
+  .tool-panel { display: none; }
+  .tool-panel.active { display: block; }
+
+  .panel-header {
+    margin-bottom: 28px;
+  }
+
+  .panel-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: 2rem;
+    color: var(--deep);
+    line-height: 1.2;
+  }
+
+  .panel-header p {
+    font-size: 0.85rem;
+    color: var(--soft);
+    margin-top: 6px;
+    line-height: 1.6;
+  }
+
+  /* Form elements */
+  .field {
+    margin-bottom: 18px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--soft);
+    margin-bottom: 7px;
+  }
+
+  textarea, input, select {
+    width: 100%;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.9rem;
+    color: var(--deep);
+    background: #fff;
+    border: 1px solid #ddd5cc;
+    border-radius: 4px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+
+  textarea:focus, input:focus, select:focus {
+    border-color: var(--rose);
+  }
+
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  /* Generate button */
+  .gen-btn {
+    background: var(--deep);
+    color: var(--blush);
+    border: none;
+    cursor: pointer;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    border-radius: 3px;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .gen-btn:hover { background: var(--rose); }
+  .gen-btn:disabled { opacity: 0.5; cursor: not-allowed; background: var(--deep); }
+
+  /* Spinner */
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(245,237,232,0.3);
+    border-top-color: var(--blush);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .gen-btn.loading .spinner { display: block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Output */
+  .output-box {
+    margin-top: 28px;
+    background: #fff;
+    border: 1px solid #ddd5cc;
+    border-radius: 4px;
+    overflow: hidden;
+    display: none;
+  }
+
+  .output-box.visible { display: block; }
+
+  .output-header {
+    background: var(--blush);
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .output-header span {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--rose);
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--rose);
+    color: var(--rose);
+    cursor: pointer;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .copy-btn:hover { background: var(--rose); color: #fff; }
+
+  .output-content {
+    padding: 20px;
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: var(--deep);
+    white-space: pre-wrap;
+    min-height: 80px;
+  }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--mist);
+    margin: 32px 0;
+  }
+
+  /* Tips */
+  .tip {
+    background: var(--blush);
+    border-left: 3px solid var(--rose);
+    padding: 12px 16px;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.8rem;
+    color: var(--deep);
+    line-height: 1.6;
+    margin-top: 16px;
+  }
+
+  .tip strong { color: var(--rose); }
+
+  @media (max-width: 600px) {
+    header { padding: 20px; }
+    .tab-nav { padding: 0 16px; }
+    .main { padding: 24px 16px 60px; }
+    .row-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-block">
+    <h1>Caroline Griffiths &amp; Bridal Gossip</h1>
+    <p>AI Content Assistant</p>
+  </div>
+
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('enquiry')">Enquiry Response</button>
+  <button class="tab-btn" onclick="switchTab('followup')">Post-Appointment</button>
+  <button class="tab-btn" onclick="switchTab('social')">Social Captions</button>
+  <button class="tab-btn" onclick="switchTab('review')">Review Reply</button>
+  <button class="tab-btn" onclick="switchTab('vendor')">Vendor Outreach</button>
+</nav>
+
+<main class="main">
+
+  <!-- ENQUIRY RESPONSE -->
+  <div id="tab-enquiry" class="tool-panel active">
+    <div class="panel-header">
+      <h2>Enquiry Response</h2>
+      <p>Paste in a new enquiry and get a warm, professional reply in Caroline's voice — ready to send in seconds.</p>
+    </div>
+
+    <div class="field">
+      <label>Which business is this enquiry for?</label>
+      <select id="enq-business">
+        <option value="planning">Caroline Griffiths Wedding Planning</option>
+        <option value="boutique">Bridal Gossip</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Where did this enquiry come from?</label>
+      <select id="enq-source">
+        <option value="website">Website contact form</option>
+        <option value="instagram">Instagram DM</option>
+        <option value="email">Email</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Paste the enquiry here</label>
+      <textarea id="enq-text" rows="5" placeholder="e.g. Hi, I'm getting married next August and looking for a wedding planner. We have a budget of around £15,000 and want something relaxed but stylish..."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Any specific details to include? (optional)</label>
+      <input id="enq-extra" type="text" placeholder="e.g. mention availability for August 2026, offer a free consultation call">
+    </div>
+
+    <button class="gen-btn" id="enq-btn" onclick="generateEnquiry()">
+      <span class="spinner"></span>
+      Generate Reply
+    </button>
+
+    <div class="tip"><strong>Tip:</strong> Speed matters — couples enquire with multiple suppliers at once. Aim to send within 2 hours.</div>
+
+    <div class="output-box" id="enq-output">
+      <div class="output-header">
+        <span>Generated Reply</span>
+        <button class="copy-btn" onclick="copyOutput('enq-result')">Copy</button>
+      </div>
+      <div class="output-content" id="enq-result"></div>
+    </div>
+  </div>
+
+  <!-- POST-APPOINTMENT FOLLOW UP -->
+  <div id="tab-followup" class="tool-panel">
+    <div class="panel-header">
+      <h2>Post-Appointment Follow-Up</h2>
+      <p>For Bridal Gossip — send a warm, personal follow-up after a bridal appointment that nudges toward a decision without pressure.</p>
+    </div>
+
+    <div class="row-2">
+      <div class="field">
+        <label>Bride's name</label>
+        <input id="fu-name" type="text" placeholder="e.g. Sophie">
+      </div>
+      <div class="field">
+        <label>Wedding date / season</label>
+        <input id="fu-date" type="text" placeholder="e.g. June 2026 or Summer 2026">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>What dresses did she try? (styles, designers, vibes)</label>
+      <textarea id="fu-dresses" rows="3" placeholder="e.g. She tried a fitted lace Stella York gown and a flowy boho style from Rebecca Ingram. She seemed most drawn to the lace but was unsure about the neckline."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Any notes from the appointment?</label>
+      <textarea id="fu-notes" rows="3" placeholder="e.g. She was with her mum and sister. Budget around £1,200. She mentioned wanting something that photographs well outdoors."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Any next steps to suggest?</label>
+      <input id="fu-next" type="text" placeholder="e.g. Book a second appointment, ask her to look at our new arrivals online">
+    </div>
+
+    <button class="gen-btn" id="fu-btn" onclick="generateFollowup()">
+      <span class="spinner"></span>
+      Generate Follow-Up Email
+    </button>
+
+    <div class="tip"><strong>Tip:</strong> Send within 24 hours of the appointment while the experience is still fresh and emotional.</div>
+
+    <div class="output-box" id="fu-output">
+      <div class="output-header">
+        <span>Generated Follow-Up Email</span>
+        <button class="copy-btn" onclick="copyOutput('fu-result')">Copy</button>
+      </div>
+      <div class="output-content" id="fu-result"></div>
+    </div>
+  </div>
+
+  <!-- SOCIAL CAPTIONS -->
+  <div id="tab-social" class="tool-panel">
+    <div class="panel-header">
+      <h2>Social Media Captions</h2>
+      <p>Generate Instagram-ready captions for both businesses — real weddings, new arrivals, behind-the-scenes, and more.</p>
+    </div>
+
+    <div class="field">
+      <label>Which business?</label>
+      <select id="soc-business">
+        <option value="planning">Caroline Griffiths Wedding Planning</option>
+        <option value="boutique">Bridal Gossip</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>What type of post is this?</label>
+      <select id="soc-type">
+        <option value="real_wedding">Real wedding feature</option>
+        <option value="new_arrival">New dress arrival</option>
+        <option value="behind_scenes">Behind the scenes</option>
+        <option value="testimonial">Sharing a testimonial</option>
+        <option value="promo">Promotion or event</option>
+        <option value="tips">Tips / advice post</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Tell me about the post — what's in the image or what happened?</label>
+      <textarea id="soc-details" rows="4" placeholder="e.g. A gorgeous outdoor summer wedding at Brympton House. The bride wore a flowing ivory gown, wildflower bouquet, golden hour photos. Very relaxed, intimate feel with 40 guests."></textarea>
+    </div>
+
+    <div class="row-2">
+      <div class="field">
+        <label>Include hashtags?</label>
+        <select id="soc-hashtags">
+          <option value="yes">Yes — include hashtags</option>
+          <option value="no">No hashtags</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Caption length</label>
+        <select id="soc-length">
+          <option value="short">Short (1–2 sentences)</option>
+          <option value="medium">Medium (short paragraph)</option>
+          <option value="long">Long (storytelling style)</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="gen-btn" id="soc-btn" onclick="generateSocial()">
+      <span class="spinner"></span>
+      Generate Caption
+    </button>
+
+    <div class="output-box" id="soc-output">
+      <div class="output-header">
+        <span>Generated Caption</span>
+        <button class="copy-btn" onclick="copyOutput('soc-result')">Copy</button>
+      </div>
+      <div class="output-content" id="soc-result"></div>
+    </div>
+  </div>
+
+  <!-- REVIEW REPLY -->
+  <div id="tab-review" class="tool-panel">
+    <div class="panel-header">
+      <h2>Review Reply</h2>
+      <p>Respond to Google or social media reviews — positive or negative — with grace and professionalism.</p>
+    </div>
+
+    <div class="field">
+      <label>Which business?</label>
+      <select id="rev-business">
+        <option value="planning">Caroline Griffiths Wedding Planning</option>
+        <option value="boutique">Bridal Gossip</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Paste the review</label>
+      <textarea id="rev-text" rows="5" placeholder="Paste the customer's review here..."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Star rating</label>
+      <select id="rev-stars">
+        <option value="5">⭐⭐⭐⭐⭐ 5 stars</option>
+        <option value="4">⭐⭐⭐⭐ 4 stars</option>
+        <option value="3">⭐⭐⭐ 3 stars</option>
+        <option value="2">⭐⭐ 2 stars</option>
+        <option value="1">⭐ 1 star</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Any context for the reply? (optional)</label>
+      <input id="rev-context" type="text" placeholder="e.g. This was a destination wedding in Italy, or we did resolve this issue at the time">
+    </div>
+
+    <button class="gen-btn" id="rev-btn" onclick="generateReview()">
+      <span class="spinner"></span>
+      Generate Reply
+    </button>
+
+    <div class="output-box" id="rev-output">
+      <div class="output-header">
+        <span>Generated Review Reply</span>
+        <button class="copy-btn" onclick="copyOutput('rev-result')">Copy</button>
+      </div>
+      <div class="output-content" id="rev-result"></div>
+    </div>
+  </div>
+
+  <!-- VENDOR OUTREACH -->
+  <div id="tab-vendor" class="tool-panel">
+    <div class="panel-header">
+      <h2>Vendor &amp; Venue Outreach</h2>
+      <p>Draft professional outreach emails to photographers, florists, venues — building preferred supplier relationships.</p>
+    </div>
+
+    <div class="field">
+      <label>Vendor / venue type</label>
+      <input id="ven-type" type="text" placeholder="e.g. Photographer, Florist, Country house venue, Caterer">
+    </div>
+
+    <div class="field">
+      <label>Vendor / venue name (if known)</label>
+      <input id="ven-name" type="text" placeholder="e.g. The Old Rectory, or leave blank if generic">
+    </div>
+
+    <div class="field">
+      <label>Purpose of outreach</label>
+      <select id="ven-purpose">
+        <option value="preferred">Propose a preferred supplier partnership</option>
+        <option value="collab">Suggest a styled shoot collaboration</option>
+        <option value="intro">General introduction / getting to know them</option>
+        <option value="booking">Enquire about availability for a client</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Any specific details to mention?</label>
+      <textarea id="ven-details" rows="3" placeholder="e.g. We specialise in destination weddings and frequently have couples with a £20k+ budget, often in the Cotswolds area"></textarea>
+    </div>
+
+    <button class="gen-btn" id="ven-btn" onclick="generateVendor()">
+      <span class="spinner"></span>
+      Generate Outreach Email
+    </button>
+
+    <div class="output-box" id="ven-output">
+      <div class="output-header">
+        <span>Generated Outreach Email</span>
+        <button class="copy-btn" onclick="copyOutput('ven-result')">Copy</button>
+      </div>
+      <div class="output-content" id="ven-result"></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // Tab switching
+  function switchTab(name) {
+    document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // Core Claude API call
+  async function callClaude(prompt) {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        system: `You are a warm, professional AI assistant helping Caroline Griffiths (wedding planner offering full planning, partial planning and destination weddings in England) and Bridal Gossip (a bridal boutique serving mid-range and budget-friendly brides in England). 
+        
+        Always write in a warm, personal, genuine tone — never corporate or stiff. Sound like a real human who genuinely cares about the couples and brides they work with. Keep language natural British English. Never use American spellings. Never use generic filler phrases like "I hope this email finds you well." Always be specific and heartfelt.`,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    const data = await response.json();
+    return data.content[0].text;
+  }
+
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    if (loading) { btn.classList.add('loading'); btn.disabled = true; }
+    else { btn.classList.remove('loading'); btn.disabled = false; }
+  }
+
+  function showOutput(boxId, resultId, text) {
+    document.getElementById(resultId).textContent = text;
+    document.getElementById(boxId).classList.add('visible');
+  }
+
+  function copyOutput(id) {
+    const text = document.getElementById(id).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = event.target;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    });
+  }
+
+  // ENQUIRY
+  async function generateEnquiry() {
+    const business = document.getElementById('enq-business').value;
+    const source = document.getElementById('enq-source').value;
+    const text = document.getElementById('enq-text').value.trim();
+    const extra = document.getElementById('enq-extra').value.trim();
+    if (!text) { alert('Please paste the enquiry first.'); return; }
+
+    const businessName = business === 'planning' ? 'Caroline Griffiths Wedding Planning' : 'Bridal Gossip';
+    const sourceLabel = { website: 'website contact form', instagram: 'Instagram DM', email: 'email' }[source];
+
+    const prompt = `A potential client has sent an enquiry via ${sourceLabel} to ${businessName}. 
+
+Enquiry: "${text}"
+
+${extra ? `Additional instructions: ${extra}` : ''}
+
+Write a warm, personal reply email from Caroline. Do not use "I hope this email finds you well" or similar openers. Start by acknowledging something specific from their enquiry. Be enthusiastic but genuine. Suggest a next step (e.g. a free discovery call or consultation). Sign off as Caroline.`;
+
+    setLoading('enq-btn', true);
+    try {
+      const result = await callClaude(prompt);
+      showOutput('enq-output', 'enq-result', result);
+    } catch(e) { alert('Something went wrong. Please try again.'); }
+    setLoading('enq-btn', false);
+  }
+
+  // FOLLOW UP
+  async function generateFollowup() {
+    const name = document.getElementById('fu-name').value.trim() || 'the bride';
+    const date = document.getElementById('fu-date').value.trim();
+    const dresses = document.getElementById('fu-dresses').value.trim();
+    const notes = document.getElementById('fu-notes').value.trim();
+    const next = document.getElementById('fu-next').value.trim();
+
+    if (!dresses) { alert('Please add some notes about the dresses tried.'); return; }
+
+    const prompt = `Write a warm, personal post-appointment follow-up email from Bridal Gossip to ${name}, who came in for a bridal appointment${date ? ` for her ${date} wedding` : ''}.
+
+Dresses tried: ${dresses}
+${notes ? `Appointment notes: ${notes}` : ''}
+${next ? `Suggested next step: ${next}` : ''}
+
+This email should feel like it's from a friend who genuinely cares, not a sales email. Reference what she tried and what she responded to. Be emotionally warm — finding your wedding dress is a big moment. Don't be pushy. Gently suggest a next step. Sign off warmly from Caroline and the Bridal Gossip team.`;
+
+    setLoading('fu-btn', true);
+    try {
+      const result = await callClaude(prompt);
+      showOutput('fu-output', 'fu-result', result);
+    } catch(e) { alert('Something went wrong. Please try again.'); }
+    setLoading('fu-btn', false);
+  }
+
+  // SOCIAL
+  async function generateSocial() {
+    const business = document.getElementById('soc-business').value;
+    const type = document.getElementById('soc-type').value;
+    const details = document.getElementById('soc-details').value.trim();
+    const hashtags = document.getElementById('soc-hashtags').value;
+    const length = document.getElementById('soc-length').value;
+
+    if (!details) { alert('Please describe the post first.'); return; }
+
+    const businessName = business === 'planning' ? 'Caroline Griffiths Wedding Planning' : 'Bridal Gossip';
+    const typeLabels = { real_wedding: 'real wedding feature', new_arrival: 'new dress arrival', behind_scenes: 'behind the scenes', testimonial: 'sharing a testimonial', promo: 'promotion or event', tips: 'tips and advice' };
+    const lengthGuide = { short: 'Keep it to 1–2 sentences maximum.', medium: 'Write a short paragraph (3–5 sentences).', long: 'Write in a storytelling style, 6–10 sentences, drawing the reader in.' };
+
+    const prompt = `Write an Instagram caption for ${businessName}. Post type: ${typeLabels[type]}.
+
+Details: ${details}
+
+${lengthGuide[length]}
+${hashtags === 'yes' ? 'Include a set of 10–15 relevant hashtags at the end, grouped together.' : 'Do not include hashtags.'}
+
+Tone: warm, personal, genuine. Avoid clichés like "love is in the air" or "fairy tale wedding." Write like a real human who is genuinely excited to share this. Use British English.`;
+
+    setLoading('soc-btn', true);
+    try {
+      const result = await callClaude(prompt);
+      showOutput('soc-output', 'soc-result', result);
+    } catch(e) { alert('Something went wrong. Please try again.'); }
+    setLoading('soc-btn', false);
+  }
+
+  // REVIEW
+  async function generateReview() {
+    const business = document.getElementById('rev-business').value;
+    const text = document.getElementById('rev-text').value.trim();
+    const stars = document.getElementById('rev-stars').value;
+    const context = document.getElementById('rev-context').value.trim();
+
+    if (!text) { alert('Please paste the review first.'); return; }
+
+    const businessName = business === 'planning' ? 'Caroline Griffiths Wedding Planning' : 'Bridal Gossip';
+
+    const prompt = `Write a reply to this ${stars}-star Google review for ${businessName}.
+
+Review: "${text}"
+${context ? `Context: ${context}` : ''}
+
+${parseInt(stars) >= 4 
+  ? 'This is a positive review. Reply warmly and personally, reference something specific from their review, express genuine gratitude. Do not be sycophantic or over the top.' 
+  : 'This is a critical review. Reply with grace, empathy, and professionalism. Acknowledge their experience, apologise sincerely without being defensive, and offer to resolve offline. Protect the brand reputation while being genuine.'}
+
+Keep it concise (3–5 sentences). Sign off from Caroline. British English.`;
+
+    setLoading('rev-btn', true);
+    try {
+      const result = await callClaude(prompt);
+      showOutput('rev-output', 'rev-result', result);
+    } catch(e) { alert('Something went wrong. Please try again.'); }
+    setLoading('rev-btn', false);
+  }
+
+  // VENDOR
+  async function generateVendor() {
+    const type = document.getElementById('ven-type').value.trim();
+    const name = document.getElementById('ven-name').value.trim();
+    const purpose = document.getElementById('ven-purpose').value;
+    const details = document.getElementById('ven-details').value.trim();
+
+    if (!type) { alert('Please enter the vendor type.'); return; }
+
+    const purposeLabels = { preferred: 'propose a preferred supplier partnership', collab: 'suggest a styled shoot collaboration', intro: 'make a general introduction', booking: 'enquire about availability for a client' };
+
+    const prompt = `Write a professional but warm outreach email from Caroline Griffiths (wedding planner based in England, offering full planning, partial planning and destination weddings) to ${name ? name + ', a' : 'a'} ${type}.
+
+Purpose: ${purposeLabels[purpose]}
+${details ? `Additional details: ${details}` : ''}
+
+Sound genuine and collaborative — not salesy. Show that Caroline has done her research (or is interested in learning more about them). Be concise. Suggest a next step. Sign off from Caroline Griffiths. British English.`;
+
+    setLoading('ven-btn', true);
+    try {
+      const result = await callClaude(prompt);
+      showOutput('ven-output', 'ven-result', result);
+    } catch(e) { alert('Something went wrong. Please try again.'); }
+    setLoading('ven-btn', false);
+  }
+</script>
+</body>
+</html>
